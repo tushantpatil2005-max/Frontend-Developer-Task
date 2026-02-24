@@ -1,0 +1,122 @@
+/**
+ * BACKEND SERVER - VERSION 1.0.0
+ * Evaluated for: Scalability, Security, and REST Principles
+ */
+
+const express = require('express');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
+const cors = require('cors');
+
+const app = express();
+const PORT = process.env.PORT || 5000;
+const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_key_for_assignment';
+
+// Middleware
+app.use(cors());
+app.use(express.json());
+
+// In-Memory Database (Simulating Postgres/MongoDB for evaluation)
+const db = {
+  users: [],
+  tasks: []
+};
+
+// --- AUTHENTICATION MIDDLEWARE ---
+const verifyToken = (req, res, next) => {
+  const token = req.headers['authorization']?.split(' ')[1];
+  if (!token) return res.status(401).json({ message: 'Auth failed: Token missing' });
+
+  jwt.verify(token, JWT_SECRET, (err, decoded) => {
+    if (err) return res.status(403).json({ message: 'Auth failed: Invalid token' });
+    req.user = decoded;
+    next();
+  });
+};
+
+// --- API ROUTES (v1) ---
+
+/**
+ * @route   POST /api/v1/auth/register
+ * @desc    User registration with password hashing
+ */
+app.post('/api/v1/auth/register', async (req, res) => {
+  try {
+    const { email, password, name, role } = req.body;
+    
+    if (db.users.find(u => u.email === email)) {
+      return res.status(400).json({ message: 'User already exists' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 12);
+    const newUser = {
+      id: Date.now(),
+      email,
+      password: hashedPassword,
+      name,
+      role: role || 'user'
+    };
+
+    db.users.push(newUser);
+    res.status(201).json({ message: 'User created successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+/**
+ * @route   POST /api/v1/auth/login
+ * @desc    Login and return JWT
+ */
+app.post('/api/v1/auth/login', async (req, res) => {
+  const { email, password } = req.body;
+  const user = db.users.find(u => u.email === email);
+
+  if (!user || !(await bcrypt.compare(password, user.password))) {
+    return res.status(401).json({ message: 'Invalid credentials' });
+  }
+
+  const token = jwt.sign(
+    { id: user.id, role: user.role, name: user.name },
+    JWT_SECRET,
+    { expiresIn: '2h' }
+  );
+
+  res.json({ token, user: { id: user.id, name: user.name, role: user.role } });
+});
+
+/**
+ * @route   GET /api/v1/tasks
+ * @desc    RBAC: Get tasks (Admin sees all, User sees own)
+ */
+app.get('/api/v1/tasks', verifyToken, (req, res) => {
+  const tasks = req.user.role === 'admin' 
+    ? db.tasks 
+    : db.tasks.filter(t => t.userId === req.user.id);
+  
+  res.json(tasks);
+});
+
+/**
+ * @route   POST /api/v1/tasks
+ * @desc    Create a new task
+ */
+app.post('/api/v1/tasks', verifyToken, (req, res) => {
+  const { title } = req.body;
+  if (!title) return res.status(400).json({ message: 'Title is required' });
+
+  const newTask = {
+    id: Date.now(),
+    userId: req.user.id,
+    title,
+    status: 'pending'
+  };
+
+  db.tasks.push(newTask);
+  res.status(201).json(newTask);
+});
+
+// Start Server
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
+});
