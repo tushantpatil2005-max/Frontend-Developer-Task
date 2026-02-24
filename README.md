@@ -7,7 +7,7 @@ Scalable Auth & Task Management APIA production-ready Backend Intern assignment 
 ├── .env                   # Environment variables
 └── server.js              # Entry point
  Getting Started1. Backend Setup# Clone the repository
-git clone [https://github.com/yourusername/backend-intern-assignment.git](https://github.com/yourusername/backend-intern-assignment.git)
+
 
 # Install dependencies
 npm install
