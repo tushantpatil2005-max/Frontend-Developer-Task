@@ -1,0 +1,126 @@
+{
+  "info": {
+    "name": "Auth & CRUD API (DummyJSON)",
+    "description": "Postman collection for the Authentication and Posts CRUD operations used in the React Dashboard.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Authentication",
+      "item": [
+        {
+          "name": "Login User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"emilys\",\n  \"password\": \"emilyspass\",\n  \"expiresInMins\": 60\n}"
+            },
+            "url": {
+              "raw": "https://dummyjson.com/auth/login",
+              "protocol": "https",
+              "host": ["dummyjson", "com"],
+              "path": ["auth", "login"]
+            },
+            "description": "Authenticates a user and returns a JWT token along with user details."
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Posts (CRUD)",
+      "item": [
+        {
+          "name": "Read (Get All Posts)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://dummyjson.com/posts?limit=6&skip=0",
+              "protocol": "https",
+              "host": ["dummyjson", "com"],
+              "path": ["posts"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "6",
+                  "description": "Number of posts to fetch"
+                },
+                {
+                  "key": "skip",
+                  "value": "0",
+                  "description": "Pagination skip count"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create (Add Post)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"A New API Request\",\n  \"body\": \"This post was created via Postman.\",\n  \"userId\": 5\n}"
+            },
+            "url": {
+              "raw": "https://dummyjson.com/posts/add",
+              "protocol": "https",
+              "host": ["dummyjson", "com"],
+              "path": ["posts", "add"]
+            }
+          }
+        },
+        {
+          "name": "Update (Edit Post)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated Title via Postman\"\n}"
+            },
+            "url": {
+              "raw": "https://dummyjson.com/posts/1",
+              "protocol": "https",
+              "host": ["dummyjson", "com"],
+              "path": ["posts", "1"]
+            },
+            "description": "Updates the post with ID of 1."
+          }
+        },
+        {
+          "name": "Delete Post",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "https://dummyjson.com/posts/1",
+              "protocol": "https",
+              "host": ["dummyjson", "com"],
+              "path": ["posts", "1"]
+            },
+            "description": "Deletes the post with ID of 1."
+          }
+        }
+      ]
+    }
+  ]
+}
